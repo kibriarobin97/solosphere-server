@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const port = process.env.PORT || 5000;
 const app = express()
@@ -27,6 +27,27 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
+    const jobsCollection = client.db('solosphereDB').collection('jobs')
+    const bidsCollection = client.db('solosphereDB').collection('bids')
+
+
+    app.post('/bid', async(req, res) => {
+        const bidData = req.body;
+        const result = await bidsCollection.insertOne(bidData)
+        res.send(result)
+    })
+
+    app.get('/jobs', async(req, res) => {
+        const result = await jobsCollection.find().toArray()
+        res.send(result)
+    })
+
+    app.get('/job/:id', async(req, res) => {
+        const id = req.params.id;
+        const query = {_id: new ObjectId(id)}
+        const result = await jobsCollection.findOne(query)
+        res.send(result)
+    })
 
 
 
